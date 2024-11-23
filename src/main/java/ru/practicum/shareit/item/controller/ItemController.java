@@ -42,7 +42,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                               @PathVariable("itemId") long itemId,
-                              @RequestBody UpdateItemRequest updateItemRequest) {//не понимаю, происходит ли валидация непустых полей при обновлении и как?
+                              @RequestBody UpdateItemRequest updateItemRequest) { //не понимаю, происходит ли валидация непустых полей при обновлении и как?
         log.info("Вызван эндпоинт обновления вещи с ID {}", itemId);
         return itemService.updateItem(userId, itemId, updateItemRequest);
     }

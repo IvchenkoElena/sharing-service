@@ -21,7 +21,7 @@ public class ItemInMemoryRepository implements ItemRepository {
         //newItem.setId(currentId);//точно эту строку тоже надо перенести в mapper?
         items.put(currentId, newItem);
         log.info("Новая вещь с ID {} добавлена в репозиторий", currentId);
-        currentId ++;
+        currentId++;
         return newItem;
     }
 
@@ -33,7 +33,7 @@ public class ItemInMemoryRepository implements ItemRepository {
             throw new NotFoundException(message);
         }
         Item oldItem = items.get(itemId);
-        if (oldItem.getOwner().getId() != owner.getId()) {//эта валидация имеет смысл?
+        if (oldItem.getOwner().getId() != owner.getId()) { //эта валидация имеет смысл?
             String message = "У вещи с ID " + itemId + " другой владелец";
             log.error(message);
             throw new NotFoundException(message);
@@ -59,14 +59,14 @@ public class ItemInMemoryRepository implements ItemRepository {
     }
 
     @Override
-    public Item getItemById(long ownerId, long itemId) {//тут нужно передавать владельца?
+    public Item getItemById(long ownerId, long itemId) { //тут нужно передавать владельца?
         if (!items.containsKey(itemId)) {
             String message = "Вещь с ID " + itemId + " не обнаружена";
             log.error(message);
             throw new NotFoundException(message);
         }
         Item item = items.get(itemId);
-        if (item.getOwner().getId() != ownerId) {//эта валидация имеет смысл?
+        if (item.getOwner().getId() != ownerId) { //эта валидация имеет смысл?
             String message = "У вещи с ID " + itemId + " другой владелец";
             log.error(message);
             throw new NotFoundException(message);
@@ -78,9 +78,9 @@ public class ItemInMemoryRepository implements ItemRepository {
     @Override
     public List<Item> searchItems(String text) {
         List<Item> searchItemsList = items.values().stream()
-                    .filter(i -> i.getName().toUpperCase().contains(text.toUpperCase()))
-                    .filter(i -> i.getAvailable())
-                    .toList();
+                .filter(i -> i.getName().toUpperCase().contains(text.toUpperCase()))
+                .filter(i -> i.getAvailable())
+                .toList();
         log.info("Выведен результат поиска вещей");
         return searchItemsList;
     }

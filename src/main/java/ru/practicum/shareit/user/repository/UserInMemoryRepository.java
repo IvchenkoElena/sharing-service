@@ -23,7 +23,7 @@ public class UserInMemoryRepository implements UserRepository {
         //newUser.setId(currentId); //точно эту строку тоже надо перенести в mapper?
         users.put(currentId, newUser);
         log.info("Новый пользователь с ID {} добавлен в репозиторий", currentId);
-        currentId ++;
+        currentId++;
         return newUser;
     }
 
