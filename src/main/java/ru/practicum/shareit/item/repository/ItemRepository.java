@@ -4,10 +4,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemRepository {
-    Item createItem(User owner, Item item);
+    Item createItem(Item item);
 
     Item updateItem(User owner, long itemId, Item item);
 
@@ -15,5 +14,7 @@ public interface ItemRepository {
 
     Item getItemById(long ownerId, long itemId);
 
-    List<Item> searchItems(Optional<Long> ownerId, String text);
+    List<Item> searchItems(String text);
+
+    long getCurrentId();
 }

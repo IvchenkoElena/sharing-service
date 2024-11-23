@@ -20,10 +20,10 @@ public class UserInMemoryRepository implements UserRepository {
     @Override
     public User createUser(User newUser) {
         validateUserEmail(newUser);
-        newUser.setId(currentId);
+        //newUser.setId(currentId); //точно эту строку тоже надо перенести в mapper?
         users.put(currentId, newUser);
         log.info("Новый пользователь с ID {} добавлен в репозиторий", currentId);
-        currentId += 1;
+        currentId ++;
         return newUser;
     }
 
@@ -42,7 +42,7 @@ public class UserInMemoryRepository implements UserRepository {
             validateUserEmail(updatedUser);
             oldUser.setEmail(updatedUser.getEmail());
         }
-        log.info("Пользователь с ID {} обновлен в репозиторий", currentId);
+        log.info("Пользователь с ID {} обновлен в репозитории", currentId);
         return oldUser;
     }
 
@@ -74,9 +74,15 @@ public class UserInMemoryRepository implements UserRepository {
         log.info("Удален пользователь с ID {}", userId);
     }
 
-    private void validateUserEmail(User newUser) {
-        String email = newUser.getEmail();
-        if (users.values().stream().map(User::getEmail).toList().contains(email)) {
+    @Override
+    public long getCurrentId() {
+        return currentId;
+    }
+
+    private void validateUserEmail(User user) {
+        long id = user.getId();
+        String email = user.getEmail();
+        if (users.values().stream().filter(u -> u.getId() != id).map(User::getEmail).toList().contains(email)) {
             String message = "Такой адрес электронной почты уже используется";
             log.error(message);
             throw new ConflictException(message);

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.NewUserRequest;
+import ru.practicum.shareit.user.dto.UpdateUserRequest;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
@@ -29,35 +32,31 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody User user) {
+    public UserDto createUser(@Valid @RequestBody NewUserRequest request) {
         log.info("Вызван эндпоинт создания пользователя");
-        return userService.createUser(user);
+        return userService.createUser(request);
     }
 
     @PatchMapping("/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public User updateUser(@PathVariable("userId") long userId,
-                           @RequestBody User user) {
+    public UserDto updateUser(@PathVariable("userId") long userId,
+                              @RequestBody UpdateUserRequest request) {//не понимаю, происходит ли валидация непустых полей при обновлении и как?
         log.info("Вызван эндпоинт обновления пользователя с ID {}", userId);
-        return userService.updateUser(userId, user);
+        return userService.updateUser(userId, request);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
+    public List<UserDto> getUsers() {
         log.info("Вызван эндпоинт получения списка пользователей");
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUserById(@PathVariable("userId") long userId) {
+    public UserDto getUserById(@PathVariable("userId") long userId) {
         log.info("Вызван эндпоинт получения пользователя с ID {}", userId);
         return userService.getUserById(userId);
     }
 
     @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public void deleteUserById(@PathVariable("userId") long userId) {
         log.info("Вызван эндпоинт удаления пользователя с ID {}", userId);
         userService.deleteUserById(userId);

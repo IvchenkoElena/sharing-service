@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -18,12 +17,11 @@ public class ItemInMemoryRepository implements ItemRepository {
     private long currentId = 1;
 
     @Override
-    public Item createItem(User owner, Item newItem) {
-        newItem.setId(currentId);
-        newItem.setOwner(owner);
+    public Item createItem(Item newItem) {
+        //newItem.setId(currentId);//точно эту строку тоже надо перенести в mapper?
         items.put(currentId, newItem);
         log.info("Новая вещь с ID {} добавлена в репозиторий", currentId);
-        currentId += 1;
+        currentId ++;
         return newItem;
     }
 
@@ -35,7 +33,7 @@ public class ItemInMemoryRepository implements ItemRepository {
             throw new NotFoundException(message);
         }
         Item oldItem = items.get(itemId);
-        if (oldItem.getOwner().getId() != owner.getId()) {
+        if (oldItem.getOwner().getId() != owner.getId()) {//эта валидация имеет смысл?
             String message = "У вещи с ID " + itemId + " другой владелец";
             log.error(message);
             throw new NotFoundException(message);
@@ -50,7 +48,7 @@ public class ItemInMemoryRepository implements ItemRepository {
         if (updatedItem.getAvailable() != null) {
             oldItem.setAvailable(updatedItem.getAvailable());
         }
-        log.info("Вещь с ID {} обновлена в репозиторий", currentId);
+        log.info("Вещь с ID {} обновлена в репозитории", currentId);
         return oldItem;
     }
 
@@ -61,14 +59,14 @@ public class ItemInMemoryRepository implements ItemRepository {
     }
 
     @Override
-    public Item getItemById(long ownerId, long itemId) {
+    public Item getItemById(long ownerId, long itemId) {//тут нужно передавать владельца?
         if (!items.containsKey(itemId)) {
             String message = "Вещь с ID " + itemId + " не обнаружена";
             log.error(message);
             throw new NotFoundException(message);
         }
         Item item = items.get(itemId);
-        if (item.getOwner().getId() != ownerId) {
+        if (item.getOwner().getId() != ownerId) {//эта валидация имеет смысл?
             String message = "У вещи с ID " + itemId + " другой владелец";
             log.error(message);
             throw new NotFoundException(message);
@@ -78,22 +76,17 @@ public class ItemInMemoryRepository implements ItemRepository {
     }
 
     @Override
-    public List<Item> searchItems(Optional<Long> mayBeOwnerId, String text) {
-        List<Item> searchItemsList;
-        if (mayBeOwnerId.isPresent()) {
-            long ownerId = mayBeOwnerId.get();
-            searchItemsList = items.values().stream()
-                    .filter(i -> i.getOwner().getId() == ownerId)
+    public List<Item> searchItems(String text) {
+        List<Item> searchItemsList = items.values().stream()
                     .filter(i -> i.getName().toUpperCase().contains(text.toUpperCase()))
                     .filter(i -> i.getAvailable())
                     .toList();
-        } else {
-            searchItemsList = items.values().stream()
-                    .filter(i -> i.getName().toUpperCase().contains(text.toUpperCase()))
-                    .filter(i -> i.getAvailable())
-                    .toList();
-        }
         log.info("Выведен результат поиска вещей");
         return searchItemsList;
+    }
+
+    @Override
+    public long getCurrentId() {
+        return currentId;
     }
 }

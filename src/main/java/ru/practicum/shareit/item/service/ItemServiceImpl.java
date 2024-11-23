@@ -3,7 +3,10 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.NewItemRequest;
+import ru.practicum.shareit.item.dto.UpdateItemRequest;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -11,7 +14,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,65 +23,43 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     @Override
-    public Item createItem(long ownerId, Item item) {
+    public ItemDto createItem(long ownerId, NewItemRequest newItemRequest) {
         User owner = userRepository.getUserById(ownerId);
-        validateItem(item);
-        return itemRepository.createItem(owner, item);
+        long currentId = itemRepository.getCurrentId();
+        Item item = ItemMapper.mapToItem(currentId, owner, newItemRequest);
+        itemRepository.createItem(item);
+        return ItemMapper.mapToItemDto(item);
     }
 
     @Override
-    public Item updateItem(long ownerId, long itemId, Item updatedItem) {
-        if (updatedItem.getName() != null) {
-            if (updatedItem.getName().isBlank()) {
-                String message = "Название не может быть пустым или отсутствовать";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-        }
-        if (updatedItem.getDescription() != null) {
-            if (updatedItem.getDescription().isBlank()) {
-                String message = "Описание не может быть пустым или отсутствовать";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-        }
+    public ItemDto updateItem(long ownerId, long itemId, UpdateItemRequest request) {
         User owner = userRepository.getUserById(ownerId);
-        return itemRepository.updateItem(owner, itemId, updatedItem);
+        Item updatedItem = itemRepository.getItemById(ownerId, itemId);
+        ItemMapper.updateItemFields(updatedItem, request);
+        updatedItem = itemRepository.updateItem(owner, itemId, updatedItem);
+        return ItemMapper.mapToItemDto(updatedItem);
     }
 
     @Override
-    public List<Item> getAllItems(long ownerId) {
-        return itemRepository.getAllItemsByOwnerId(ownerId);
+    public List<ItemDto> getAllItems(long ownerId) {
+        return itemRepository.getAllItemsByOwnerId(ownerId).stream()
+                .map(ItemMapper::mapToItemDto)
+                .toList();
     }
 
     @Override
-    public Item getItemById(long ownerId, long itemId) {
-        return itemRepository.getItemById(ownerId, itemId);
+    public ItemDto getItemById(long ownerId, long itemId) {
+        Item item = itemRepository.getItemById(ownerId, itemId);
+        return ItemMapper.mapToItemDto(item);
     }
 
     @Override
-    public List<Item> searchItems(Optional<Long> ownerId, String text) {
+    public List<ItemDto> searchItems(String text) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        return itemRepository.searchItems(ownerId, text);
-    }
-
-    private void validateItem(Item item) {
-        if (item.getAvailable() == null) {
-            String message = "Поле доступности должно быть заполнено";
-            log.error(message);
-            throw new ValidationException(message);
-        }
-        if (item.getName() == null || item.getName().isBlank()) {
-            String message = "Название не может быть пустым или отсутствовать";
-            log.error(message);
-            throw new ValidationException(message);
-        }
-        if (item.getDescription() == null || item.getDescription().isBlank()) {
-            String message = "Описание не может быть пустым или отсутствовать";
-            log.error(message);
-            throw new ValidationException(message);
-        }
+        return itemRepository.searchItems(text).stream()
+                .map(ItemMapper::mapToItemDto)
+                .toList();
     }
 }

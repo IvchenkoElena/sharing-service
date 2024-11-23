@@ -3,7 +3,10 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.NewUserRequest;
+import ru.practicum.shareit.user.dto.UpdateUserRequest;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -16,60 +19,41 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User createUser(User newUser) {
-        validateUser(newUser);
+    public UserDto createUser(NewUserRequest request) {
         log.info("Вызван сервисный метод сохранения пользователя");
-        return userRepository.createUser(newUser);
+        long currentId = userRepository.getCurrentId();
+        User newUser = UserMapper.mapToUser(currentId, request);
+        userRepository.createUser(newUser);
+        return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
-    public User updateUser(long userId, User updatedUser) {
-        if (updatedUser.getEmail() != null) {
-            if (updatedUser.getEmail().isBlank() || !updatedUser.getEmail().contains("@")) {
-                String message = "Электронная почта не может быть пустой и должна содержать символ @";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-        }
-        if (updatedUser.getName() != null) {
-            if (updatedUser.getName().isBlank()) {
-                String message = "Логин не может быть пустым";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-        }
+    public UserDto updateUser(long userId, UpdateUserRequest request) {
         log.info("Вызван сервисный метод обновления пользователя");
-        return userRepository.updateUser(userId, updatedUser);
+        User updatedUser = userRepository.getUserById(userId);
+        UserMapper.updateUserFields(updatedUser, request);
+        userRepository.updateUser(userId, updatedUser);
+        return UserMapper.mapToUserDto(updatedUser);
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("Вызван сервисный метод вывода списка пользователей");
-        return userRepository.getAllUsers();
+        return userRepository.getAllUsers().stream()
+                .map(UserMapper::mapToUserDto)
+                .toList();
     }
 
     @Override
-    public User getUserById(long userId) {
+    public UserDto getUserById(long userId) {
         log.info("Вызван сервисный метод вывода пользователя с ID {}", userId);
-        return userRepository.getUserById(userId);
+        User user = userRepository.getUserById(userId);
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override
     public void deleteUserById(long userId) {
         log.info("Вызван сервисный метод удаления пользователя с ID {}", userId);
         userRepository.deleteUserById(userId);
-    }
-
-    private void validateUser(User newUser) {
-        if (newUser.getEmail() == null || newUser.getEmail().isBlank() || !newUser.getEmail().contains("@")) {
-            String message = "Электронная почта не может быть пустой или отсутствовать и должна содержать символ @";
-            log.error(message);
-            throw new ValidationException(message);
-        }
-        if (newUser.getName() == null || newUser.getName().isBlank()) {
-            String message = "Логин не может быть пустым или отсутствовать";
-            log.error(message);
-            throw new ValidationException(message);
-        }
     }
 }

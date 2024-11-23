@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.NewItemRequest;
+import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * TODO Sprint add-controllers.
@@ -31,42 +33,36 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Item createItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                           @RequestBody Item item) {
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") long userId,
+                              @Valid @RequestBody NewItemRequest newItemRequest) {
         log.info("Вызван эндпоинт создания вещи");
-        return itemService.createItem(userId, item);
+        return itemService.createItem(userId, newItemRequest);
     }
 
     @PatchMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                           @PathVariable("itemId") long itemId,
-                           @RequestBody Item item) {
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+                              @PathVariable("itemId") long itemId,
+                              @RequestBody UpdateItemRequest updateItemRequest) {//не понимаю, происходит ли валидация непустых полей при обновлении и как?
         log.info("Вызван эндпоинт обновления вещи с ID {}", itemId);
-        return itemService.updateItem(userId, itemId, item);
+        return itemService.updateItem(userId, itemId, updateItemRequest);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<Item> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Вызван эндпоинт получения списка вещей");
         return itemService.getAllItems(userId);
     }
 
     @GetMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Item getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                            @PathVariable("itemId") long itemId) {
+    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
+                               @PathVariable("itemId") long itemId) {
         log.info("Вызван эндпоинт получения вещи с ID {}", itemId);
         return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Item> searchItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) long userId,
-                                  @RequestParam("text") String text) {
-        Optional<Long> mayBeUser = Optional.of(userId);
+    public List<ItemDto> searchItems(@RequestParam("text") String text) {
         log.info("Вызван эндпоинт поиска вещей");
-        return itemService.searchItems(mayBeUser, text);
+        return itemService.searchItems(text);
     }
 }
