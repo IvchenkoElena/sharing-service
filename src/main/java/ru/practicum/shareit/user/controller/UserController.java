@@ -39,7 +39,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable("userId") long userId,
-                              @RequestBody UpdateUserRequest request) { //не понимаю, происходит ли валидация непустых полей при обновлении и как?
+                              @RequestBody UpdateUserRequest request) {
         log.info("Вызван эндпоинт обновления пользователя с ID {}", userId);
         return userService.updateUser(userId, request);
     }

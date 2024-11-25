@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,7 @@ public class ItemInMemoryRepository implements ItemRepository {
 
     @Override
     public Item createItem(Item newItem) {
-        //newItem.setId(currentId);//точно эту строку тоже надо перенести в mapper?
+        newItem.setId(currentId);
         items.put(currentId, newItem);
         log.info("Новая вещь с ID {} добавлена в репозиторий", currentId);
         currentId++;
@@ -26,30 +25,12 @@ public class ItemInMemoryRepository implements ItemRepository {
     }
 
     @Override
-    public Item updateItem(User owner, long itemId, Item updatedItem) {
-        if (!items.containsKey(itemId)) {
-            String message = "Вещь с ID " + itemId + " для обновления не обнаружена";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        Item oldItem = items.get(itemId);
-        if (oldItem.getOwner().getId() != owner.getId()) { //эта валидация имеет смысл?
-            String message = "У вещи с ID " + itemId + " другой владелец";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        //обновляю поля
-        if (updatedItem.getName() != null) {
-            oldItem.setName(updatedItem.getName());
-        }
-        if (updatedItem.getDescription() != null) {
-            oldItem.setDescription(updatedItem.getDescription());
-        }
-        if (updatedItem.getAvailable() != null) {
-            oldItem.setAvailable(updatedItem.getAvailable());
-        }
+    public Item updateItem(long itemId, Item updatedItem) {
+        // удаляю из репозитория старую вещь и добавляю обновленную
+        items.remove(itemId);
+        items.put(itemId, updatedItem);
         log.info("Вещь с ID {} обновлена в репозитории", currentId);
-        return oldItem;
+        return updatedItem;
     }
 
     @Override
@@ -59,18 +40,13 @@ public class ItemInMemoryRepository implements ItemRepository {
     }
 
     @Override
-    public Item getItemById(long ownerId, long itemId) { //тут нужно передавать владельца?
+    public Item getItemById(long itemId) {
         if (!items.containsKey(itemId)) {
             String message = "Вещь с ID " + itemId + " не обнаружена";
             log.error(message);
             throw new NotFoundException(message);
         }
         Item item = items.get(itemId);
-        if (item.getOwner().getId() != ownerId) { //эта валидация имеет смысл?
-            String message = "У вещи с ID " + itemId + " другой владелец";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
         log.info("Найдена вещь с ID {}", itemId);
         return item;
     }
@@ -83,10 +59,5 @@ public class ItemInMemoryRepository implements ItemRepository {
                 .toList();
         log.info("Выведен результат поиска вещей");
         return searchItemsList;
-    }
-
-    @Override
-    public long getCurrentId() {
-        return currentId;
     }
 }

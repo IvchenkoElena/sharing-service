@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -21,19 +22,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(NewUserRequest request) {
         log.info("Вызван сервисный метод сохранения пользователя");
-        long currentId = userRepository.getCurrentId();
-        User newUser = UserMapper.mapToUser(currentId, request);
-        userRepository.createUser(newUser);
+        User newUser = UserMapper.mapToUser(request);
+        validateUserEmail(newUser);
+        newUser = userRepository.createUser(newUser);
         return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
     public UserDto updateUser(long userId, UpdateUserRequest request) {
         log.info("Вызван сервисный метод обновления пользователя");
-        User updatedUser = userRepository.getUserById(userId);
-        UserMapper.updateUserFields(updatedUser, request);
-        userRepository.updateUser(userId, updatedUser);
-        return UserMapper.mapToUserDto(updatedUser);
+        User oldUser = userRepository.getUserById(userId);
+        User newUser = UserMapper.updateUserFields(oldUser, request);
+        validateUserEmail(newUser);
+        userRepository.updateUser(userId, newUser);
+        return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
@@ -55,5 +57,19 @@ public class UserServiceImpl implements UserService {
     public void deleteUserById(long userId) {
         log.info("Вызван сервисный метод удаления пользователя с ID {}", userId);
         userRepository.deleteUserById(userId);
+    }
+
+    private void validateUserEmail(User user) {
+        long id = user.getId();
+        String email = user.getEmail();
+        if (userRepository.getAllUsers().stream()
+                .filter(u -> u.getId() != id)
+                .map(User::getEmail)
+                .toList()
+                .contains(email)) {
+            String message = "Такой адрес электронной почты уже используется";
+            log.error(message);
+            throw new ConflictException(message);
+        }
     }
 }

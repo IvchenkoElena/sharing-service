@@ -23,9 +23,8 @@ public final class ItemMapper {
         return dto;
     }
 
-    public static Item mapToItem(long currentId, User owner, NewItemRequest newItemRequest) {
+    public static Item mapToItem(User owner, NewItemRequest newItemRequest) {
         Item item = new Item();
-        item.setId(currentId);
         item.setName(newItemRequest.getName());
         item.setDescription(newItemRequest.getDescription());
         item.setOwner(owner);

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
@@ -25,18 +26,22 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto createItem(long ownerId, NewItemRequest newItemRequest) {
         User owner = userRepository.getUserById(ownerId);
-        long currentId = itemRepository.getCurrentId();
-        Item item = ItemMapper.mapToItem(currentId, owner, newItemRequest);
-        itemRepository.createItem(item);
+        Item item = ItemMapper.mapToItem(owner, newItemRequest);
+        item = itemRepository.createItem(item);
         return ItemMapper.mapToItemDto(item);
     }
 
     @Override
     public ItemDto updateItem(long ownerId, long itemId, UpdateItemRequest request) {
         User owner = userRepository.getUserById(ownerId);
-        Item updatedItem = itemRepository.getItemById(ownerId, itemId);
+        Item updatedItem = itemRepository.getItemById(itemId);
+        if (updatedItem.getOwner().getId() != owner.getId()) {
+            String message = "У вещи с ID " + itemId + " другой владелец";
+            log.error(message);
+            throw new NotFoundException(message);
+        }
         ItemMapper.updateItemFields(updatedItem, request);
-        updatedItem = itemRepository.updateItem(owner, itemId, updatedItem);
+        updatedItem = itemRepository.updateItem(itemId, updatedItem);
         return ItemMapper.mapToItemDto(updatedItem);
     }
 
@@ -48,8 +53,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(long ownerId, long itemId) {
-        Item item = itemRepository.getItemById(ownerId, itemId);
+    public ItemDto getItemById(long itemId) {
+        Item item = itemRepository.getItemById(itemId);
         return ItemMapper.mapToItemDto(item);
     }
 

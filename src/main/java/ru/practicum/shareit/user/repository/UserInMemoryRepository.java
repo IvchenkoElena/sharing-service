@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 
@@ -19,8 +18,7 @@ public class UserInMemoryRepository implements UserRepository {
 
     @Override
     public User createUser(User newUser) {
-        validateUserEmail(newUser);
-        //newUser.setId(currentId); //точно эту строку тоже надо перенести в mapper?
+        newUser.setId(currentId);
         users.put(currentId, newUser);
         log.info("Новый пользователь с ID {} добавлен в репозиторий", currentId);
         currentId++;
@@ -29,21 +27,10 @@ public class UserInMemoryRepository implements UserRepository {
 
     @Override
     public User updateUser(long userId, User updatedUser) {
-        if (!users.containsKey(userId)) {
-            String message = "Пользователь с ID " + userId + " для обновления не обнаружен";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        User oldUser = users.get(userId);
-        if (updatedUser.getName() != null) {
-            oldUser.setName(updatedUser.getName());
-        }
-        if (updatedUser.getEmail() != null) {
-            validateUserEmail(updatedUser);
-            oldUser.setEmail(updatedUser.getEmail());
-        }
+        users.remove(userId);
+        users.put(userId, updatedUser);
         log.info("Пользователь с ID {} обновлен в репозитории", currentId);
-        return oldUser;
+        return updatedUser;
     }
 
     @Override
@@ -72,20 +59,5 @@ public class UserInMemoryRepository implements UserRepository {
         }
         users.remove(userId);
         log.info("Удален пользователь с ID {}", userId);
-    }
-
-    @Override
-    public long getCurrentId() {
-        return currentId;
-    }
-
-    private void validateUserEmail(User user) {
-        long id = user.getId();
-        String email = user.getEmail();
-        if (users.values().stream().filter(u -> u.getId() != id).map(User::getEmail).toList().contains(email)) {
-            String message = "Такой адрес электронной почты уже используется";
-            log.error(message);
-            throw new ConflictException(message);
-        }
     }
 }

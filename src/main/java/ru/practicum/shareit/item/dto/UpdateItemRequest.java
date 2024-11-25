@@ -10,14 +10,14 @@ public class UpdateItemRequest {
 
 
     public boolean hasName() {
-        return ! (name == null || name.isBlank());
+        return !(name == null || name.isBlank());
     }
 
     public boolean hasDescription() {
-        return ! (description == null || description.isBlank());
+        return !(description == null || description.isBlank());
     }
 
     public boolean hasAvailable() {
-        return ! (available == null);
+        return !(available == null);
     }
 }
