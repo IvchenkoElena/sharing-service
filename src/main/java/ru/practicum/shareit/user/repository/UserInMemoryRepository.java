@@ -27,7 +27,6 @@ public class UserInMemoryRepository implements UserRepository {
 
     @Override
     public User updateUser(long userId, User updatedUser) {
-        users.remove(userId);
         users.put(userId, updatedUser);
         log.info("Пользователь с ID {} обновлен в репозитории", currentId);
         return updatedUser;

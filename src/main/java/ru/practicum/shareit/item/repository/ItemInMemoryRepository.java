@@ -26,8 +26,6 @@ public class ItemInMemoryRepository implements ItemRepository {
 
     @Override
     public Item updateItem(long itemId, Item updatedItem) {
-        // удаляю из репозитория старую вещь и добавляю обновленную
-        items.remove(itemId);
         items.put(itemId, updatedItem);
         log.info("Вещь с ID {} обновлена в репозитории", currentId);
         return updatedItem;
