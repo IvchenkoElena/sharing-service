@@ -24,24 +24,24 @@ public class UserServiceImpl implements UserService {
         log.info("Вызван сервисный метод сохранения пользователя");
         User newUser = UserMapper.mapToUser(request);
         validateUserEmail(newUser);
-        newUser = userRepository.createUser(newUser);
+        newUser = userRepository.save(newUser);
         return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
     public UserDto updateUser(long userId, UpdateUserRequest request) {
         log.info("Вызван сервисный метод обновления пользователя");
-        User oldUser = userRepository.getUserById(userId);
+        User oldUser = userRepository.findUserById(userId);
         User newUser = UserMapper.updateUserFields(oldUser, request);
         validateUserEmail(newUser);
-        userRepository.updateUser(userId, newUser);
+        userRepository.save(newUser);
         return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
         log.info("Вызван сервисный метод вывода списка пользователей");
-        return userRepository.getAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
@@ -49,20 +49,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long userId) {
         log.info("Вызван сервисный метод вывода пользователя с ID {}", userId);
-        User user = userRepository.getUserById(userId);
+        User user = userRepository.findUserById(userId);
         return UserMapper.mapToUserDto(user);
     }
 
     @Override
     public void deleteUserById(long userId) {
         log.info("Вызван сервисный метод удаления пользователя с ID {}", userId);
-        userRepository.deleteUserById(userId);
+        userRepository.deleteById(userId);
     }
 
     private void validateUserEmail(User user) {
         long id = user.getId();
         String email = user.getEmail();
-        if (userRepository.getAllUsers().stream()
+        if (userRepository.findAll().stream()
                 .filter(u -> u.getId() != id)
                 .map(User::getEmail)
                 .toList()
