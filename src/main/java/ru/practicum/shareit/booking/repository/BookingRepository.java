@@ -1,51 +1,42 @@
 package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    Booking findBookingById(long bookingId);
-
     List<Booking> findBookingsByItem(Item item);
 
-    @Query("select b from Booking as b where b.booker.id = ?1 and b.item.id =?2 and CURRENT_TIMESTAMP > b.end")
-    List<Booking> findPastBookingsByBookerIdAndItmId(long bookerId, long itemId);
+    List<Booking> findBookingsByItemAndStatus(Item item, Status status);
 
+    //List<Booking> findBookingsByItemAndStartIsBeforeOrEndIsAfter(Item item, LocalDateTime requestEnd, LocalDateTime requestStart);//пыталась сдлелать запрос с условием, но не заработало
+
+    List<Booking> findBookingsByBookerIdAndItemIdAndEndIsBefore(long bookerId, long itemId, LocalDateTime now);
 
     List<Booking> findAllBookingsByBookerId(long bookerId);
 
-    @Query("select b from Booking as b where b.booker.id = ?1 and CURRENT_TIMESTAMP between b.start and b.end")
-    List<Booking> findCurrentBookingsByBookerId(long bookerId);
+    List<Booking> findBookingsByBookerIdAndStartIsBeforeAndEndIsAfter(long bookerId, LocalDateTime now, LocalDateTime nowAgain);//не придумала, как по-другому написать
 
-    @Query("select b from Booking as b where b.booker.id = ?1 and CURRENT_TIMESTAMP < b.start")
-    List<Booking> findFutureBookingsByBookerId(long bookerId);
+    List<Booking> findBookingsByBookerIdAndStartIsAfter(long bookerId, LocalDateTime now);
 
-    @Query("select b from Booking as b where b.booker.id = ?1 and CURRENT_TIMESTAMP > b.end")
-    List<Booking> findPastBookingsByBookerId(long bookerId);
+    List<Booking> findBookingsByBookerIdAndEndIsBefore(long bookerId, LocalDateTime now);
 
     List<Booking> findAllBookingsByBookerIdAndStatus(long bookerId, Status status);
 
+    List<Booking> findAllBookingsByItemOwnerId(long ownerId);
 
-    @Query("select b from Booking as b where b.item.owner.id = ?1")
-    List<Booking> findAllBookingsByOwnerId(long ownerId);
+    List<Booking> findBookingsByItemOwnerIdAndStartIsBeforeAndEndIsAfter(long owner, LocalDateTime now, LocalDateTime nowAgain);//хочется использовать between, но не в этом видимо случае?
 
-    @Query("select b from Booking as b where b.item.owner.id = ?1 and CURRENT_TIMESTAMP between b.start and b.end")
-    List<Booking> findCurrentBookingsByOwnerId(long owner);
+    List<Booking> findBookingsByItemOwnerIdAndStartIsAfter(long owner, LocalDateTime now);
 
-    @Query("select b from Booking as b where b.item.owner.id = ?1 and CURRENT_TIMESTAMP < b.start")
-    List<Booking> findFutureBookingsByOwnerId(long owner);
+    List<Booking> findBookingsByItemOwnerIdAndEndIsBefore(long owner, LocalDateTime now);
 
-    @Query("select b from Booking as b where b.item.owner.id = ?1 and CURRENT_TIMESTAMP > b.end")
-    List<Booking> findPastBookingsByOwnerId(long owner);
-
-    @Query("select b from Booking as b where b.item.owner.id = ?1 and b.status = ?2")
-    List<Booking> findAllBookingsByOwnerIdAndStatus(long owner, Status status);
+    List<Booking> findAllBookingsByItemOwnerIdAndStatus(long owner, Status status);
 
 }

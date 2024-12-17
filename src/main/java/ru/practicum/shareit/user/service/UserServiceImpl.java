@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(long userId, UpdateUserRequest request) {
         log.info("Вызван сервисный метод обновления пользователя");
-        User oldUser = userRepository.findUserById(userId);
+        User oldUser = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
         User newUser = UserMapper.updateUserFields(oldUser, request);
         validateUserEmail(newUser);
         userRepository.save(newUser);
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long userId) {
         log.info("Вызван сервисный метод вывода пользователя с ID {}", userId);
-        User user = userRepository.findUserById(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
         return UserMapper.mapToUserDto(user);
     }
 

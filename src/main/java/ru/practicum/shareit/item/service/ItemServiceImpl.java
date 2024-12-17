@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -41,12 +42,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(long ownerId, NewItemRequest newItemRequest) {
-        User owner = userRepository.findUserById(ownerId);
-        if (owner == null) {
-            String message = "Пользователь c ID " + ownerId + " не найден";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
+        User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("Пользователь c ID " + ownerId + " не найден"));
+
         ItemRequest itemRequest = requestRepository.findById(newItemRequest.getRequestId());
         Item item = ItemMapper.mapToItem(owner, itemRequest, newItemRequest);
         item = itemRepository.save(item);
@@ -55,13 +52,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(long ownerId, long itemId, UpdateItemRequest request) {
-        User owner = userRepository.findUserById(ownerId);
-        if (owner == null) {
-            String message = "Пользователь c ID " + ownerId + " не найден";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        Item updatedItem = itemRepository.findItemById(itemId);
+        User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("Пользователь c ID " + ownerId + " не найден"));
+        Item updatedItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
         if (updatedItem.getOwner().getId() != owner.getId()) {
             String message = "У вещи с ID " + itemId + " другой владелец";
             log.error(message);
@@ -80,9 +72,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public AdvancedItemDto loadAdvancedData(Item item) {
-        List<Booking> bookingsList = bookingRepository.findBookingsByItem(item);
+        //List<Booking> bookingsList = bookingRepository.findBookingsByItem(item);
+        List<Booking> bookingsList = bookingRepository.findBookingsByItemAndStatus(item, Status.APPROVED);
 
-//Тест ждет здесь null
+//Тест Get Items With Comments ждет здесь null: FAILED Test item 'lastBooking' field | AssertionError: "lastBooking" must be "null": expected '2024-12-17T20:23:38' to be null
+        //Наставник ответил: Вероятно, это рудимент от будущих ТЗ при перекомпоновке.
 
 //        Optional<LocalDateTime> mayBeLastBooking = bookingsList.stream()
 //                .map(Booking::getEnd)
@@ -107,7 +101,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public AdvancedItemDto getItemById(long itemId) {
-        Item item = itemRepository.findItemById(itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
         return loadAdvancedData(item);
     }
 
@@ -123,19 +117,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(long userId, long itemId, NewCommentRequest newCommentRequest) {
-        User author = userRepository.findUserById(userId);
-        if (author == null) {
-            String message = "Пользователь c ID " + userId + " не найден";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        Item item = itemRepository.findItemById(itemId);
-        if (item == null) {
-            String message = "Вещь c ID " + itemId + " не найдена";
-            log.error(message);
-            throw new NotFoundException(message);
-        }
-        List<Booking> pastBookingsList = bookingRepository.findPastBookingsByBookerIdAndItmId(userId, item.getId());
+        User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь c ID " + userId + " не найден"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
+        List<Booking> pastBookingsList = bookingRepository.findBookingsByBookerIdAndItemIdAndEndIsBefore(userId, item.getId(), LocalDateTime.now());
         if (pastBookingsList.isEmpty()) {
             String message = "Пользователь c ID " + userId + " не брал в аренду вещь с ID " + item.getId();
             log.error(message);
