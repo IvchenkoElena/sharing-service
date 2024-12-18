@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
@@ -11,27 +13,28 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findBookingsByItem(Item item);
+    @Query("select b from Booking b where b.item = ?1 and b.start <= ?2 and b.end >= ?3")
+    List<Booking> findCrossedBookingsByItem(Item item, LocalDateTime requestEnd, LocalDateTime requestStart);
 
-    List<Booking> findBookingsByItemAndStatus(Item item, Status status);
+    List<Booking> findBookingsByBookerIdAndItemIdAndStatusAndEndIsBefore(long bookerId, long itemId, Status status, LocalDateTime now);
 
-    //List<Booking> findBookingsByItemAndStartIsBeforeOrEndIsAfter(Item item, LocalDateTime requestEnd, LocalDateTime requestStart);//пыталась сдлелать запрос с условием, но не заработало
+    //List<Booking> findAllBookingsByBookerIdOrderByStartDesc(long bookerId);
 
-    List<Booking> findBookingsByBookerIdAndItemIdAndEndIsBefore(long bookerId, long itemId, LocalDateTime now);
+    List<Booking> findAllBookingsByBookerId(long bookerId, Sort sort);//через sort правильно сделала реализацию?
 
-    List<Booking> findAllBookingsByBookerId(long bookerId);
+    @Query("select b from Booking as b where b.booker.id = ?1 and CURRENT_TIMESTAMP between b.start and b.end order by b.start desc")
+    List<Booking> findCurrentBookingsByBookerIdOrderByStartDesc(long bookerId);
 
-    List<Booking> findBookingsByBookerIdAndStartIsBeforeAndEndIsAfter(long bookerId, LocalDateTime now, LocalDateTime nowAgain);//не придумала, как по-другому написать
+    List<Booking> findBookingsByBookerIdAndStartIsAfterOrderByStartDesc(long bookerId, LocalDateTime now);
 
-    List<Booking> findBookingsByBookerIdAndStartIsAfter(long bookerId, LocalDateTime now);
+    List<Booking> findBookingsByBookerIdAndEndIsBeforeOrderByStartDesc(long bookerId, LocalDateTime now);
 
-    List<Booking> findBookingsByBookerIdAndEndIsBefore(long bookerId, LocalDateTime now);
-
-    List<Booking> findAllBookingsByBookerIdAndStatus(long bookerId, Status status);
+    List<Booking> findAllBookingsByBookerIdAndStatusOrderByStartDesc(long bookerId, Status status);
 
     List<Booking> findAllBookingsByItemOwnerId(long ownerId);
 
-    List<Booking> findBookingsByItemOwnerIdAndStartIsBeforeAndEndIsAfter(long owner, LocalDateTime now, LocalDateTime nowAgain);//хочется использовать between, но не в этом видимо случае?
+    @Query("select b from Booking as b where b.item.owner.id = ?1 and CURRENT_TIMESTAMP between b.start and b.end")
+    List<Booking> findCurrentBookingsByOwnerId(long owner);
 
     List<Booking> findBookingsByItemOwnerIdAndStartIsAfter(long owner, LocalDateTime now);
 

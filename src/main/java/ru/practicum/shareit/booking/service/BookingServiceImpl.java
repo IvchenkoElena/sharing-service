@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
@@ -56,31 +57,16 @@ public class BookingServiceImpl implements BookingService {
 
         //Проверка пересечения
 
-        List<Booking> bookingsList = bookingRepository.findBookingsByItem(item);
-        if (bookingsList.stream()
-                .anyMatch(b -> isTimeCross(b, request))) {
+        List<Booking> crossedBookings = bookingRepository.findCrossedBookingsByItem(item, request.getEnd(), request.getStart());
+        if (!crossedBookings.isEmpty()) {
             String message = "В это время вещь занята";
             log.error(message);
             throw new ValidationException(message);
         }
 
-//        List<Booking> crossedBookings = bookingRepository.findBookingsByItemAndStartIsBeforeOrEndIsAfter(item, request.getEnd(), request.getStart());
-//        if (!crossedBookings.isEmpty()) {
-//            String message = "В это время вещь занята";
-//            log.error(message);
-//            throw new ValidationException(message);
-//        }
-
-        //пыталась сделать запрос с условием, но не получилось
-
-
         Booking booking = BookingMapper.mapToBooking(booker, item, request);
         booking = bookingRepository.save(booking);
         return BookingMapper.mapToBookingDto(booking);
-    }
-
-    private boolean isTimeCross(Booking booking, NewBookingRequest request) {
-        return request.getStart().isBefore(booking.getEnd()) || request.getEnd().isAfter(booking.getStart());
     }
 
     @Override
@@ -126,17 +112,17 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookingsList;
 
         switch (currentState) {
-            case ALL -> bookingsList = bookingRepository.findAllBookingsByBookerId(bookerId);
+            case ALL -> bookingsList = bookingRepository.findAllBookingsByBookerId(bookerId, Sort.by(Sort.Order.desc("start")));
             case CURRENT ->
-                    bookingsList = bookingRepository.findBookingsByBookerIdAndStartIsBeforeAndEndIsAfter(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                    bookingsList = bookingRepository.findCurrentBookingsByBookerIdOrderByStartDesc(bookerId);
             case PAST ->
-                    bookingsList = bookingRepository.findBookingsByBookerIdAndEndIsBefore(bookerId, LocalDateTime.now());
+                    bookingsList = bookingRepository.findBookingsByBookerIdAndEndIsBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
             case FUTURE ->
-                    bookingsList = bookingRepository.findBookingsByBookerIdAndStartIsAfter(bookerId, LocalDateTime.now());
+                    bookingsList = bookingRepository.findBookingsByBookerIdAndStartIsAfterOrderByStartDesc(bookerId, LocalDateTime.now());
             case WAITING ->
-                    bookingsList = bookingRepository.findAllBookingsByBookerIdAndStatus(bookerId, Status.WAITING);
+                    bookingsList = bookingRepository.findAllBookingsByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING);
             case REJECTED ->
-                    bookingsList = bookingRepository.findAllBookingsByBookerIdAndStatus(bookerId, Status.REJECTED);
+                    bookingsList = bookingRepository.findAllBookingsByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED);
             default -> throw new NotFoundException("Статус указан неверно");
         }
 
@@ -155,7 +141,7 @@ public class BookingServiceImpl implements BookingService {
         switch (currentState) {
             case ALL -> bookingsList = bookingRepository.findAllBookingsByItemOwnerId(ownerId);
             case CURRENT ->
-                    bookingsList = bookingRepository.findBookingsByItemOwnerIdAndStartIsBeforeAndEndIsAfter(ownerId, LocalDateTime.now(), LocalDateTime.now());
+                    bookingsList = bookingRepository.findCurrentBookingsByOwnerId(ownerId);
             case PAST ->
                     bookingsList = bookingRepository.findBookingsByItemOwnerIdAndEndIsBefore(ownerId, LocalDateTime.now());
             case FUTURE ->

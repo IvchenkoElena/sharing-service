@@ -72,22 +72,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public AdvancedItemDto loadAdvancedData(Item item) {
-        //List<Booking> bookingsList = bookingRepository.findBookingsByItem(item);
-        List<Booking> bookingsList = bookingRepository.findBookingsByItemAndStatus(item, Status.APPROVED);
-
-//Тест Get Items With Comments ждет здесь null: FAILED Test item 'lastBooking' field | AssertionError: "lastBooking" must be "null": expected '2024-12-17T20:23:38' to be null
-        //Наставник ответил: Вероятно, это рудимент от будущих ТЗ при перекомпоновке.
-
-//        Optional<LocalDateTime> mayBeLastBooking = bookingsList.stream()
-//                .map(Booking::getEnd)
-//                .filter(e -> e.isBefore(LocalDateTime.now()))
-//                .sorted(Comparator.reverseOrder())
-//                .findFirst();
-//
-//        Optional<LocalDateTime> mayBeNextBooking = bookingsList.stream()
-//                .map(Booking::getStart)
-//                .filter(e -> e.isAfter(LocalDateTime.now()))
-//                .findFirst();
 
         Optional<LocalDateTime> mayBeLastBooking = Optional.empty();
         Optional<LocalDateTime> mayBeNextBooking = Optional.empty();
@@ -119,7 +103,7 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto createComment(long userId, long itemId, NewCommentRequest newCommentRequest) {
         User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь c ID " + userId + " не найден"));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
-        List<Booking> pastBookingsList = bookingRepository.findBookingsByBookerIdAndItemIdAndEndIsBefore(userId, item.getId(), LocalDateTime.now());
+        List<Booking> pastBookingsList = bookingRepository.findBookingsByBookerIdAndItemIdAndStatusAndEndIsBefore(userId, item.getId(), Status.APPROVED, LocalDateTime.now());
         if (pastBookingsList.isEmpty()) {
             String message = "Пользователь c ID " + userId + " не брал в аренду вещь с ID " + item.getId();
             log.error(message);
