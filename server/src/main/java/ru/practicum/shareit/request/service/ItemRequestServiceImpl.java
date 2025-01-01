@@ -58,7 +58,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestWithAnswersDto getItemRequestByRequestId(long userId, long requestId) {
-        // User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
         ItemRequest itemRequestByRequestId = requestRepository.findById(requestId);
         if (itemRequestByRequestId == null) {
             throw new NotFoundException("Запрос вещи с ID " + userId + " не найден");

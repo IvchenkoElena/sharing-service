@@ -17,9 +17,11 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,5 +68,42 @@ class ItemRequestServiceImplTest {
                 () -> requestService.createItemRequest(requestorId, request));
 
         assertEquals("Пользователь с ID " + requestorId + " не найден", thrown.getMessage());
+    }
+
+    @Test
+    void getAllItemRequests_whenRequestorNotFound() {
+        long requestorId = 0L;
+        NewItemRequestRequest request = new NewItemRequestRequest("description");
+        User requestor = new User(requestorId, "requestor name", "requestor email");
+        when(userRepository.findById(requestorId)).thenReturn(Optional.empty());
+
+        NotFoundException thrown = assertThrows(NotFoundException.class,
+                () -> requestService.getAllItemRequests(requestorId));
+
+        assertEquals("Пользователь с ID " + requestorId + " не найден", thrown.getMessage());
+    }
+
+    @Test
+    void getAllItemRequests_positiveCase() {
+        long userId = 3L;
+        User user = new User(userId, "user name", "user email");
+        long requestorId = 7L;
+        User requestor = new User(requestorId, "requestor name", "requestor email");
+        UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
+        long itemRequestId = 0L;
+        String description = "description";
+        ItemRequest itemRequest = new ItemRequest(itemRequestId, description, requestor, LocalDate.now());
+        ItemRequestDto requestDto = new ItemRequestDto(itemRequestId, description, requestorDto, LocalDate.now());
+        List<ItemRequestDto> requestDtoList = List.of(requestDto);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(requestRepository.findAllByRequestorIdIsNot(anyLong())).thenReturn(List.of(itemRequest));
+
+        List<ItemRequestDto> actualRequestDtoList = requestService.getAllItemRequests(userId);
+
+        assertEquals(requestDtoList.size(), actualRequestDtoList.size());
+        assertEquals(requestDtoList.getFirst().getId(), actualRequestDtoList.getFirst().getId());
+        assertEquals(requestDtoList.getFirst().getDescription(), actualRequestDtoList.getFirst().getDescription());
+        assertEquals(requestDtoList.getFirst().getCreated(), actualRequestDtoList.getFirst().getCreated());
+        verify(requestRepository).findAllByRequestorIdIsNot(userId);
     }
 }
