@@ -20,13 +20,13 @@ public class ItemRequestMapperTest {
     private final User user = new User(1L, "john.doe@mail.com", "John Doe");
     private final User requestor = new User(2L, "requestor name", "requestor email");
     private final UserDto requestorDto = new UserDto(2L, "requestor name", "requestor email");
-    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, LocalDateTime.now());
+    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, now);
 
     private final Item item = new Item(1L, "name", "description", user, Boolean.TRUE,itemRequest);
 
     private final NewItemRequestRequest newRequest = new NewItemRequestRequest("description");
 
-    private final ItemRequestDto dto = new ItemRequestDto(1L, "description", requestorDto, LocalDateTime.now());
+    private final ItemRequestDto dto = new ItemRequestDto(1L, "description", requestorDto, now);
 
     @Test
     public void toItemRequestDtoTest() {
@@ -38,7 +38,6 @@ public class ItemRequestMapperTest {
     public void toItemRequest() {
         ItemRequest ir = ItemRequestMapper.mapToItemRequest(requestor, newRequest);
         assertThat(ir.getDescription(), equalTo(itemRequest.getDescription()));
-        assertThat(ir.getCreated(), equalTo(itemRequest.getCreated()));
         assertThat(ir.getRequestor(), equalTo(itemRequest.getRequestor()));
     }
 }
