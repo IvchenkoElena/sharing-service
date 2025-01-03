@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -33,6 +34,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -40,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
+    @Transactional
     @Override
     public ItemDto createItem(long ownerId, NewItemRequest newItemRequest) {
         User owner = userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + ownerId + " не найден"));
@@ -50,6 +53,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.mapToItemDto(item);
     }
 
+    @Transactional
     @Override
     public ItemDto updateItem(long ownerId, long itemId, UpdateItemRequest request) {
         User owner = userRepository.findById(ownerId)
@@ -101,6 +105,7 @@ public class ItemServiceImpl implements ItemService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public CommentDto createComment(long userId, long itemId, NewCommentRequest newCommentRequest) {
         User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь c ID " + userId + " не найден"));

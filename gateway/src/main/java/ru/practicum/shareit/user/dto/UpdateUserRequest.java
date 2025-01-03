@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
-//import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Email;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"id"})
 public class UpdateUserRequest {
     private String name;
-    //@Email
+    @Email
     private String email;
 
     public boolean hasName() {

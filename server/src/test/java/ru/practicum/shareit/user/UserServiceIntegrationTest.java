@@ -141,20 +141,23 @@ class UserServiceIntegrationTest {
         assertEquals("Такой адрес электронной почты уже используется", thrown.getMessage());
     }
 
-//    @Test
-//    void testUpdateUserWithDuplicateEmail() {
-//        NewUserRequest exampleUserInputDto = new NewUserRequest();
-//        exampleUserInputDto.setName("Example User");
-//        exampleUserInputDto.setEmail("example@example.com");
-//        UserDto exampleUserDto = userService.createUser(exampleUserInputDto);
-//        long exampleUserDtoId = exampleUserDto.getId();
-//
-//        UpdateUserRequest duplicateUserInputDto = new UpdateUserRequest();
-//        duplicateUserInputDto.setName("Duplicate User");
-//        duplicateUserInputDto.setEmail("newuser@example.com");
-//
-//        ConflictException thrown = assertThrows(ConflictException.class, () -> userService.updateUser(exampleUserDtoId, duplicateUserInputDto));
-//        assertEquals("Такой адрес электронной почты уже используется", thrown.getMessage());
-//    }
+    @Test
+    void testUpdateUserWithDuplicateEmail() {
+        NewUserRequest exampleUserInputDto = new NewUserRequest();
+        exampleUserInputDto.setName("Example User");
+        exampleUserInputDto.setEmail("example@example.com");
+        UserDto exampleUserDto = userService.createUser(exampleUserInputDto);
+        long exampleUserDtoId = exampleUserDto.getId();
+
+        UpdateUserRequest duplicateUserInputDto = new UpdateUserRequest();
+        duplicateUserInputDto.setName("Duplicate User");
+        duplicateUserInputDto.setEmail("newuser@example.com");
+
+        ConflictException thrown = assertThrows(ConflictException.class,
+                () -> userService.updateUser(exampleUserDtoId, duplicateUserInputDto));
+        assertEquals("Такой адрес электронной почты уже используется", thrown.getMessage());
+    }
     //долго билась над этим тестом, но он почему-то не работает
+    //получилось заставить его работать, только удалив unique constrained в Schema
+    //добавление валидации в контроллере gateway ничем мне не помогало в server
 }

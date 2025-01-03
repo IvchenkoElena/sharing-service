@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -25,11 +26,13 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public BookingDto createBooking(long bookerId, NewBookingRequest request) {
         User booker = userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + bookerId + " не найден"));
@@ -69,6 +72,7 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.mapToBookingDto(booking);
     }
 
+    @Transactional
     @Override
     public BookingDto approveBooking(long ownerId, long bookingId, Boolean approved) {
         //проверка, что бронирование существует

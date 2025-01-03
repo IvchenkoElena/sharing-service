@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
@@ -17,9 +18,11 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserDto createUser(NewUserRequest request) {
         log.info("Вызван сервисный метод сохранения пользователя");
@@ -29,6 +32,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.mapToUserDto(newUser);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(long userId, UpdateUserRequest request) {
         log.info("Вызван сервисный метод обновления пользователя");
@@ -54,6 +58,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.mapToUserDto(user);
     }
 
+    @Transactional
     @Override
     public void deleteUserById(long userId) {
         log.info("Вызван сервисный метод удаления пользователя с ID {}", userId);
