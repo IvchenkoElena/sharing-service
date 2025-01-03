@@ -26,7 +26,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class ItemServiceIntegrationTest {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("Test Request");
         itemRequest.setRequestor(user);
-        itemRequest.setCreated(LocalDate.now());
+        itemRequest.setCreated(LocalDateTime.now());
         itemRequest = itemRequestRepository.save(itemRequest);
         itemRequestId = itemRequest.getId();
 

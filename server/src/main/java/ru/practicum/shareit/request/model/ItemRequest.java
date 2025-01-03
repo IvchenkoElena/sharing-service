@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.
@@ -34,5 +34,5 @@ public class ItemRequest {
     @ToString.Exclude
     private User requestor;
 
-    private LocalDate created;
+    private LocalDateTime created;
 }

@@ -21,7 +21,7 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +76,7 @@ class ItemServiceImplTest {
         long requestId = 0L;
         User owner = new User(ownerId,"name", "email");
         User requestor = new User(6L, "name6", "email6");
-        ItemRequest itemRequest = new ItemRequest(requestId, "descr", requestor, LocalDate.now());
+        ItemRequest itemRequest = new ItemRequest(requestId, "descr", requestor, LocalDateTime.now());
         NewItemRequest request = new NewItemRequest("name", "description", true, requestId);
         Item itemToSave = new Item(itemId, "name", "description", owner, true, itemRequest);
         when(userRepository.findById(ownerId)).thenReturn(Optional.empty());

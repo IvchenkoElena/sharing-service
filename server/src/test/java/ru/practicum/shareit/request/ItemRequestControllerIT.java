@@ -17,7 +17,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -51,7 +51,7 @@ class ItemRequestControllerIT {
     void createItemRequest() {
         NewItemRequestRequest requestDto = new NewItemRequestRequest("description");
         ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "description", new UserDto(2L, "requestor name", "requestor email"),
-                LocalDate.of(2022, 7, 3));
+                LocalDateTime.of(2022, 7, 3, 0, 0, 0));
 
         when(requestService.createItemRequest(anyLong(), any())).thenReturn(itemRequestDto);
 
@@ -71,7 +71,7 @@ class ItemRequestControllerIT {
     void getItemRequestByRequestId() {
         NewItemRequestRequest requestDto = new NewItemRequestRequest("description");
         ItemRequestWithAnswersDto itemRequestWithAnswersDto = new ItemRequestWithAnswersDto(1L, "description", new UserDto(2L, "requestor name", "requestor email"),
-                LocalDate.of(2022, 7, 3), List.of(new ItemCutDto()));
+                LocalDateTime.of(2022, 7, 3, 0, 0, 0), List.of(new ItemCutDto()));
 
         when(requestService.getItemRequestByRequestId(anyLong(), anyLong())).thenReturn(itemRequestWithAnswersDto);
 
@@ -89,9 +89,9 @@ class ItemRequestControllerIT {
     void getAllItemRequests() {
         NewItemRequestRequest requestDto = new NewItemRequestRequest("description");
         ItemRequestDto itemRequestDto1 = new ItemRequestDto(1L, "description", new UserDto(2L, "requestor name", "requestor email"),
-                LocalDate.of(2022, 7, 3));
+                LocalDateTime.of(2022, 7, 3, 0, 0, 0));
         ItemRequestDto itemRequestDto2 = new ItemRequestDto(1L, "description", new UserDto(2L, "requestor name", "requestor email"),
-                LocalDate.of(2022, 7, 3));
+                LocalDateTime.of(2022, 7, 3, 0, 0, 0));
 
         List<ItemRequestDto> newRequests = List.of(itemRequestDto1, itemRequestDto2);
 

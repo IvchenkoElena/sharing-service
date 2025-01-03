@@ -18,7 +18,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class ItemRequestControllerTest {
         itemRequestWithAnswersDto.setId(requestId);
         itemRequestWithAnswersDto.setDescription(itemRequestInputDto.getDescription());
         itemRequestWithAnswersDto.setRequestor(new UserDto(userId, "name", "descriotion"));
-        itemRequestWithAnswersDto.setCreated(LocalDate.now());
+        itemRequestWithAnswersDto.setCreated(LocalDateTime.now());
         itemRequestWithAnswersDto.setItems(new ArrayList<>());
     }
 

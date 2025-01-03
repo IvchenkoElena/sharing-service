@@ -64,16 +64,6 @@ public class ItemRequestServiceIntegrationTest {
         assertEquals(newItemRequestInputDto.getDescription(), newItemRequestOutputDto.getDescription());
     }
 
-//    @Test
-//    void testGetAll() {
-//        List<ItemRequestDto> requests = itemRequestService.getAllItemRequests(userId);
-//        assertFalse(requests.isEmpty());
-//        assertEquals(1, requests.size());
-//        assertEquals(itemRequestOutputDto.getId(), requests.get(0).getId());
-//    }
-    //этот тест почему-то падает
-
-
     @Test
     void testGetItemRequestsByRequestorId() {
         List<ItemRequestWithAnswersDto> requests = itemRequestService.getItemRequestsByRequestorId(userId);

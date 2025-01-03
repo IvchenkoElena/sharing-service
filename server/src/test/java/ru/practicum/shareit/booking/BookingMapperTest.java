@@ -12,7 +12,6 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +23,7 @@ public class BookingMapperTest {
 
     private final User user = new User(1L, "john.doe@mail.com", "John Doe");
     private final User requestor = new User(2L, "requestor name", "requestor email");
-    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, LocalDate.of(22,8,22));
+    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, LocalDateTime.of(22,8,22, 0, 0, 0));
 
     private final Item item = new Item(1L, "name", "description", user, Boolean.TRUE, itemRequest);
 

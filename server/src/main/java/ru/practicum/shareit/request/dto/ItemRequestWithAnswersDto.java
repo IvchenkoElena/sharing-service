@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemCutDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,7 +18,7 @@ public class ItemRequestWithAnswersDto {
     private Long id;
     private String description;
     private UserDto requestor;
-    private LocalDate created;
+    private LocalDateTime created;
 
     private List<ItemCutDto> items;
 }

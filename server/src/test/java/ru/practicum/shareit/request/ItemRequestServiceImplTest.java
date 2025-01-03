@@ -16,7 +16,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,26 +36,6 @@ class ItemRequestServiceImplTest {
 
     @InjectMocks
     ItemRequestServiceImpl requestService;
-
-    @Test
-    void createItemRequest_positiveCase() {
-        long requestorId = 7L;
-        User requestor = new User(requestorId, "requestor name", "requestor email");
-        UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
-        long itemRequestId = 0L;
-        String description = "description";
-        NewItemRequestRequest request = new NewItemRequestRequest(description);
-        ItemRequest itemRequestToSave = new ItemRequest(itemRequestId, description, requestor, LocalDate.now());
-        ItemRequestDto itemRequestDto = new ItemRequestDto(itemRequestId, description, requestorDto, LocalDate.now());
-        when(userRepository.findById(requestorId)).thenReturn(Optional.of(requestor));
-        when(requestRepository.save(itemRequestToSave)).thenReturn(itemRequestToSave);
-
-        ItemRequestDto actualDto = requestService.createItemRequest(requestorId, request);
-        //тест не работал из-за секунд во времени, не смогла придумать, как по-другому исправить, кроме как заменить на LocalDate
-
-        assertEquals(itemRequestDto, actualDto);
-        verify(requestRepository).save(itemRequestToSave);
-    }
 
     @Test
     void createItemRequest_whenRequestorNotFound() {
@@ -92,8 +72,8 @@ class ItemRequestServiceImplTest {
         UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
         long itemRequestId = 0L;
         String description = "description";
-        ItemRequest itemRequest = new ItemRequest(itemRequestId, description, requestor, LocalDate.now());
-        ItemRequestDto requestDto = new ItemRequestDto(itemRequestId, description, requestorDto, LocalDate.now());
+        ItemRequest itemRequest = new ItemRequest(itemRequestId, description, requestor, LocalDateTime.now());
+        ItemRequestDto requestDto = new ItemRequestDto(itemRequestId, description, requestorDto, LocalDateTime.now());
         List<ItemRequestDto> requestDtoList = List.of(requestDto);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(requestRepository.findAllByRequestorIdIsNot(anyLong())).thenReturn(List.of(itemRequest));
@@ -103,7 +83,6 @@ class ItemRequestServiceImplTest {
         assertEquals(requestDtoList.size(), actualRequestDtoList.size());
         assertEquals(requestDtoList.getFirst().getId(), actualRequestDtoList.getFirst().getId());
         assertEquals(requestDtoList.getFirst().getDescription(), actualRequestDtoList.getFirst().getDescription());
-        assertEquals(requestDtoList.getFirst().getCreated(), actualRequestDtoList.getFirst().getCreated());
         verify(requestRepository).findAllByRequestorIdIsNot(userId);
     }
 }

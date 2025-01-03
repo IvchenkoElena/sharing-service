@@ -13,7 +13,6 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class ItemMapperTest {
     private final UpdateItemRequest updItem = new UpdateItemRequest("name", "description", Boolean.TRUE);
     private final UpdateItemRequest updEmptyItem = new UpdateItemRequest("", "", null);
     private final ItemDto dto = new ItemDto(1L, "name", "description", Boolean.TRUE, 1L, 1L);
-    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, LocalDate.of(22,8,22));
+    private final ItemRequest itemRequest = new ItemRequest(1L, "description", requestor, LocalDateTime.of(22,8,22, 0, 0, 0));
 
     private final AdvancedItemDto advItemDto = new AdvancedItemDto(1L, "name", "description", Boolean.TRUE, now, nextDay, comments, 1L, 1L);
     private final AdvancedItemDto advItemDtoNullDates = new AdvancedItemDto(1L, "name", "description", Boolean.TRUE, null, null, comments, 1L, 1L);
