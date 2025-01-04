@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.NewItemRequestRequest;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
@@ -33,6 +34,8 @@ class ItemRequestServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private ItemRepository itemRepository;
+    @Mock
+    private ItemRequestMapper mapper;
 
     @InjectMocks
     ItemRequestServiceImpl requestService;
@@ -85,4 +88,32 @@ class ItemRequestServiceImplTest {
         assertEquals(requestDtoList.getFirst().getDescription(), actualRequestDtoList.getFirst().getDescription());
         verify(requestRepository).findAllByRequestorIdIsNot(userId);
     }
+
+//    @Test
+//    void createItemRequest_positiveCase() {
+//        long requestorId = 7L;
+//        User requestor = new User(requestorId, "requestor name", "requestor email");
+//        UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
+//        long itemRequestId = 0L;
+//        String description = "description";
+//        LocalDateTime created = LocalDateTime.now();
+//        NewItemRequestRequest request = new NewItemRequestRequest(description);
+//        ItemRequest itemRequestToSave = new ItemRequest(itemRequestId, description, requestor, created);
+//        ItemRequestDto itemRequestDto = new ItemRequestDto(itemRequestId, description, requestorDto, created);
+//        when(userRepository.findById(requestorId)).thenReturn(Optional.of(requestor));
+//        //when(mapper.mapToItemRequest(requestor,request)).thenReturn(itemRequestToSave);
+//        when(requestRepository.save(itemRequestToSave)).thenReturn(itemRequestToSave);
+//
+//        ItemRequestDto actualDto = requestService.createItemRequest(requestorId, request);
+//
+//        assertEquals(itemRequestDto.getId(), actualDto.getId());
+//        assertEquals(itemRequestDto.getDescription(), actualDto.getDescription());
+//        assertEquals(itemRequestDto.getRequestor(), actualDto.getRequestor());
+//        verify(requestRepository).save(itemRequestToSave);
+//    }
+    //не понимаю как сделать, чтобы время задавалось одно и то же
+    //в моках я задаю created = LocalDateTime.now();
+    //но при вызове самого метода requestService.createItemRequest(requestorId, request); время задается в маппере,
+    // либо при создании экземпляра сущности. и оно отличается от created на доли секунд.
+    // Я не могу вручную туда задать другое время
 }

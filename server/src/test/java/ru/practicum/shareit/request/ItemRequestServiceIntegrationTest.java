@@ -37,6 +37,7 @@ public class ItemRequestServiceIntegrationTest {
     private NewItemRequestRequest itemRequestInputDto;
     private ItemRequestDto itemRequestOutputDto;
     private Long userId;
+    private Long anotherUserId;
     private Long requestId;
 
     @BeforeEach
@@ -46,6 +47,12 @@ public class ItemRequestServiceIntegrationTest {
         user.setEmail("test@example.com");
         user = userRepository.save(user);
         userId = user.getId();
+
+        User anotherUser = new User();
+        anotherUser.setName("Test AnotherUser");
+        anotherUser.setEmail("anothertest@example.com");
+        anotherUser = userRepository.save(anotherUser);
+        anotherUserId = anotherUser.getId();
 
         itemRequestInputDto = new NewItemRequestRequest();
         itemRequestInputDto.setDescription("Test Request");
@@ -83,5 +90,13 @@ public class ItemRequestServiceIntegrationTest {
     @Test
     void testGetOneDetailedByIdNotFound() {
         assertThrows(NotFoundException.class, () -> itemRequestService.getItemRequestByRequestId(userId, 999L));
+    }
+
+    @Test
+    void getAllItemRequests() {
+        List<ItemRequestDto> requests = itemRequestService.getAllItemRequests(anotherUserId);
+        assertFalse(requests.isEmpty());
+        assertEquals(1, requests.size());
+        assertEquals(itemRequestOutputDto.getId(), requests.get(0).getId());
     }
 }

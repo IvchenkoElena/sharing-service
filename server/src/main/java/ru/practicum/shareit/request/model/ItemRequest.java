@@ -34,5 +34,5 @@ public class ItemRequest {
     @ToString.Exclude
     private User requestor;
 
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 }

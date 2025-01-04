@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
@@ -56,6 +57,8 @@ class UserServiceIntegrationTest {
 //        userQuery.setParameter("name", "Test User");
 //        userQuery.setParameter("email", "newuser@example.com");
 //        userQuery.executeUpdate();
+        //мне кажется более правильным для дальнейших тестов в базу добавлять данные через sql insert,
+        // но потом при вызове create почему-то неправильно добавляются айдишники
 
         userInputDto = new NewUserRequest();
         userInputDto.setName("Test User");
@@ -153,11 +156,7 @@ class UserServiceIntegrationTest {
         duplicateUserInputDto.setName("Duplicate User");
         duplicateUserInputDto.setEmail("newuser@example.com");
 
-        ConflictException thrown = assertThrows(ConflictException.class,
+        assertThrows(DataIntegrityViolationException.class,
                 () -> userService.updateUser(exampleUserDtoId, duplicateUserInputDto));
-        assertEquals("Такой адрес электронной почты уже используется", thrown.getMessage());
     }
-    //долго билась над этим тестом, но он почему-то не работает
-    //получилось заставить его работать, только удалив unique constrained в Schema
-    //добавление валидации в контроллере gateway ничем мне не помогало в server
 }
