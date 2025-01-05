@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,31 +90,26 @@ class ItemRequestServiceImplTest {
         verify(requestRepository).findAllByRequestorIdIsNot(userId);
     }
 
-//    @Test
-//    void createItemRequest_positiveCase() {
-//        long requestorId = 7L;
-//        User requestor = new User(requestorId, "requestor name", "requestor email");
-//        UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
-//        long itemRequestId = 0L;
-//        String description = "description";
-//        LocalDateTime created = LocalDateTime.now();
-//        NewItemRequestRequest request = new NewItemRequestRequest(description);
-//        ItemRequest itemRequestToSave = new ItemRequest(itemRequestId, description, requestor, created);
-//        ItemRequestDto itemRequestDto = new ItemRequestDto(itemRequestId, description, requestorDto, created);
-//        when(userRepository.findById(requestorId)).thenReturn(Optional.of(requestor));
-//        //when(mapper.mapToItemRequest(requestor,request)).thenReturn(itemRequestToSave);
-//        when(requestRepository.save(itemRequestToSave)).thenReturn(itemRequestToSave);
-//
-//        ItemRequestDto actualDto = requestService.createItemRequest(requestorId, request);
-//
-//        assertEquals(itemRequestDto.getId(), actualDto.getId());
-//        assertEquals(itemRequestDto.getDescription(), actualDto.getDescription());
-//        assertEquals(itemRequestDto.getRequestor(), actualDto.getRequestor());
-//        verify(requestRepository).save(itemRequestToSave);
-//    }
-    //не понимаю как сделать, чтобы время задавалось одно и то же
-    //в моках я задаю created = LocalDateTime.now();
-    //но при вызове самого метода requestService.createItemRequest(requestorId, request); время задается в маппере,
-    // либо при создании экземпляра сущности. и оно отличается от created на доли секунд.
-    // Я не могу вручную туда задать другое время
+    @Test
+    void createItemRequest_positiveCase() {
+        long requestorId = 7L;
+        User requestor = new User(requestorId, "requestor name", "requestor email");
+        UserDto requestorDto = new UserDto(requestorId, "requestor name", "requestor email");
+        long itemRequestId = 0L;
+        String description = "description";
+        LocalDateTime created = LocalDateTime.now();
+        NewItemRequestRequest request = new NewItemRequestRequest(description);
+        ItemRequest itemRequestToSave = new ItemRequest(itemRequestId, description, requestor, created);
+        ItemRequestDto itemRequestDto = new ItemRequestDto(itemRequestId, description, requestorDto, created);
+        when(userRepository.findById(requestorId)).thenReturn(Optional.of(requestor));
+        when(requestRepository.save(any())).thenReturn(itemRequestToSave);
+
+        ItemRequestDto actualDto = requestService.createItemRequest(requestorId, request);
+
+        assertNotNull(actualDto);
+        assertEquals(itemRequestDto.getId(), actualDto.getId());
+        assertEquals(itemRequestDto.getDescription(), actualDto.getDescription());
+        assertEquals(itemRequestDto.getRequestor(), actualDto.getRequestor());
+        verify(requestRepository).save(any());
+    }
 }

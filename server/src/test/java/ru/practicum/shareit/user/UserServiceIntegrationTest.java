@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,27 +45,17 @@ class UserServiceIntegrationTest {
     @Autowired
     private final UserRepository userRepository;
 
-    private NewUserRequest userInputDto;
-    private UserDto userOutputDto;
+    private User user;
     private long userId;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
-//        Query userQuery = em.createNativeQuery("INSERT INTO Users (id, name, email) " +
-//                "VALUES (:id , :name , :email );");
-//        userQuery.setParameter("id", "1");
-//        userQuery.setParameter("name", "Test User");
-//        userQuery.setParameter("email", "newuser@example.com");
-//        userQuery.executeUpdate();
-        //мне кажется более правильным для дальнейших тестов в базу добавлять данные через sql insert,
-        // но потом при вызове create почему-то неправильно добавляются айдишники
+        user = new User();
+        user.setName("Test User");
+        user.setEmail("newuser@example.com");
+        em.persist(user);
 
-        userInputDto = new NewUserRequest();
-        userInputDto.setName("Test User");
-        userInputDto.setEmail("newuser@example.com");
-        userOutputDto = userService.createUser(userInputDto);
-        userId = userOutputDto.getId();
+        userId = user.getId();
     }
 
     @Test
@@ -159,4 +150,10 @@ class UserServiceIntegrationTest {
         assertThrows(DataIntegrityViolationException.class,
                 () -> userService.updateUser(exampleUserDtoId, duplicateUserInputDto));
     }
+
+    @AfterEach
+    void afterEach() {
+        em.createNativeQuery("truncate table users");
+    }
+    //очистку после каждого теста сделала, но без нее тоже все работает
 }
